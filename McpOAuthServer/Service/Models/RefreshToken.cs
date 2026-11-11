@@ -1,0 +1,21 @@
+using System;
+
+namespace McpOAuthServer.Service.Models
+{
+    public sealed class RefreshToken
+    {
+        public string Id { get; set; } = string.Empty;
+
+        public string ClientId { get; set; } = string.Empty;
+
+        public string UserId { get; set; } = string.Empty;
+
+        public string Scope { get; set; } = string.Empty;
+
+        public string Audience { get; set; } = string.Empty;
+
+        public string Nonce { get; set; } = string.Empty;
+
+        public DateTimeOffset ExpiryDateTime { get; set; }
+    }
+}
