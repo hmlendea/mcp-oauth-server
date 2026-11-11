@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="McpOAuthServer/McpOAuthServer.csproj" />
+  <Project Path="McpOAuthServer.ArchitectureTests/McpOAuthServer.ArchitectureTests.csproj" />
+  <Project Path="McpOAuthServer.IntegrationTests/McpOAuthServer.IntegrationTests.csproj" />
+  <Project Path="McpOAuthServer.UnitTests/McpOAuthServer.UnitTests.csproj" />
+</Solution>
