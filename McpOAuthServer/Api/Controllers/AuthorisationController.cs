@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,12 +30,17 @@ namespace McpOAuthServer.Api.Controllers
             AuthorisationGrant serviceRequest = request.ToServiceModel();
             AuthorisationValidation validation = authorisationService.Validate(serviceRequest);
 
+            OAuthClient client = clientService.TryGet(serviceRequest.ClientId);
+
             if (!validation.IsValid)
             {
                 return RenderError(serviceRequest, validation);
             }
 
-            OAuthClient client = clientService.Get(serviceRequest.ClientId);
+            if (!IsRedirectUriRegistered(client, validation.RedirectUri))
+            {
+                return BadRequest();
+            }
 
             return RenderForm(serviceRequest, validation, client.Name, string.Empty);
         }
@@ -51,6 +57,11 @@ namespace McpOAuthServer.Api.Controllers
             }
 
             OAuthClient client = clientService.Get(serviceRequest.ClientId);
+
+            if (!IsRedirectUriRegistered(client, validation.RedirectUri))
+            {
+                return BadRequest();
+            }
 
             if (string.Equals(request.Decision, DeniedDecision, StringComparison.Ordinal))
             {
@@ -119,7 +130,10 @@ namespace McpOAuthServer.Api.Controllers
             AuthorisationGrant request,
             AuthorisationValidation validation)
         {
-            if (string.IsNullOrWhiteSpace(validation.RedirectUri))
+            OAuthClient client = clientService.TryGet(request.ClientId);
+
+            if (string.IsNullOrWhiteSpace(validation.RedirectUri) ||
+                !IsRedirectUriRegistered(client, validation.RedirectUri))
             {
                 return new ContentResult
                 {
@@ -137,5 +151,10 @@ namespace McpOAuthServer.Api.Controllers
                     request.State,
                     settings.Issuer)));
         }
+
+        private static bool IsRedirectUriRegistered(OAuthClient client, string redirectUri)
+            => client is not null &&
+                !string.IsNullOrWhiteSpace(redirectUri) &&
+                client.RedirectUris.Contains(redirectUri, StringComparer.Ordinal);
     }
 }
